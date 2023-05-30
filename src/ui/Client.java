@@ -16,38 +16,41 @@ public class Client implements ConnectionInteraction {
         Client client = new Client();
         Scanner sc = new Scanner(System.in);
 
-        System.out.println("Enter ip: ");
+        System.out.print("Enter ip: ");
         String ip = sc.nextLine();
-        System.out.println("Enter port: ");
+        System.out.print("Enter port: ");
         String port = sc.nextLine();
+        System.out.print("Enter name: ");
+        String name = sc.nextLine();
 
-        client.connectServers(ip, Integer.parseInt(port));
-        client.chat.writeData();
+        client.connectServers(ip, Integer.parseInt(port), name);
+        client.createConnection();
+        client.writeData();
     }
 
     @Override
-    public void createConnection(String ip, int port) {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true){
-                    connectServers(ip, port);
+    public void createConnection() {
+        Thread thread = new Thread(() -> {
+            while (true){
+                try {
                     flow();
-                    chat.receiveData();
+                    receiveData();
+                } finally {
                     endConnection();
                 }
             }
         });
+        thread.start();
     }
 
     @Override
-    public void connectServers(String ip, int port) {
+    public void connectServers(String ip, int port, String name) {
         try {
             socket = new Socket(ip, port);
-            chat = new Chat(socket, ip);
-            chat.printText("Connecting with " + socket.getInetAddress().getHostAddress());
+            chat = new Chat(socket, name);
+            chat.printText("Connecting with " + socket.getInetAddress().getHostAddress() + "\n");
         } catch (IOException e) {
-            System.out.println("Error connecting with server: " + e.getMessage());
+            System.out.println("Error connecting with server: " + e.getMessage() + "\n");
             System.exit(0);
         }
     }
@@ -60,5 +63,13 @@ public class Client implements ConnectionInteraction {
     @Override
     public void endConnection() {
         chat.endConnection();
+    }
+
+    public void receiveData(){
+        chat.receiveData();
+    }
+
+    public void writeData(){
+        chat.writeData();
     }
 }

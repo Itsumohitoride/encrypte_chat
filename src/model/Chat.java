@@ -11,12 +11,12 @@ import java.util.Scanner;
 public class Chat implements ChatInteraction {
     private DataInputStream input;
     private DataOutputStream output;
-    private final String ip;
+    private String name;
     private final Socket socket;
 
-    public Chat(Socket socket, String ip){
+    public Chat(Socket socket, String name){
         this.socket = socket;
-        this.ip = ip;
+        this.name = name;
         flow();
     }
     @Override
@@ -25,10 +25,11 @@ public class Chat implements ChatInteraction {
         try {
             do {
                 message = (String) input.readUTF();
-                printText("[" + ip + "]: " + message);
+                printText("\n[" + socket.getInetAddress().getHostAddress() + "]: " + message
+                        + "\n[" + name + "]:" );
             } while (!message.equalsIgnoreCase(TERMINATE_CONNECTION));
         } catch (IOException e) {
-            printText("Error receiving message: " + e.getMessage());
+            printText("Error receiving message: " + e.getMessage() + "\n");
             endConnection();
         }
     }
@@ -37,7 +38,7 @@ public class Chat implements ChatInteraction {
     public void writeData() {
         String message = "";
         while (true){
-            printText("[" + ip + "]: ");
+            printText("[" + name + "]: ");
             message = getMessage();
             if (message.length() > 0){
                 send(message);
@@ -51,13 +52,13 @@ public class Chat implements ChatInteraction {
             output.writeUTF(message);
             output.flush();
         } catch (IOException e) {
-            printText("Error sending message: " + e.getMessage());
+            printText("Error sending message: " + e.getMessage() + "\n");
         }
     }
 
     @Override
     public void printText(String message) {
-        System.out.println(message);
+        System.out.print(message);
     }
 
     @Override
@@ -72,7 +73,7 @@ public class Chat implements ChatInteraction {
             output = new DataOutputStream(socket.getOutputStream());
             output.flush();
         } catch (IOException e) {
-            printText("Error creating chat");
+            printText("Error creating chat\n");
         }
     }
 
@@ -82,7 +83,7 @@ public class Chat implements ChatInteraction {
             output.close();
             socket.close();
         } catch (IOException e) {
-            printText("Error closing chat: " + e.getMessage());
+            printText("Error closing chat: " + e.getMessage() + "\n");
             System.exit(0);
         }
     }

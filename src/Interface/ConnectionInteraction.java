@@ -1,8 +1,8 @@
 package Interface;
 
 public interface ConnectionInteraction {
-    void createConnection(String ip, int port);
-    void connectServers(String ip, int port);
+    void createConnection();
+    void connectServers(String ip, int port, String name);
     void flow();
     void endConnection();
 }
