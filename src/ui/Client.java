@@ -65,10 +65,12 @@ public class Client implements ConnectionInteraction {
         chat.endConnection();
     }
 
+    @Override
     public void receiveData(){
         chat.receiveData();
     }
 
+    @Override
     public void writeData(){
         chat.writeData();
     }

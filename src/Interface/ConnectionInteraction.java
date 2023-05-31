@@ -5,4 +5,6 @@ public interface ConnectionInteraction {
     void connectServers(String ip, int port, String name);
     void flow();
     void endConnection();
+    void receiveData();
+    void writeData();
 }
