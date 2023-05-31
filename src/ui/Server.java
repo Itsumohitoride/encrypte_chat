@@ -20,7 +20,7 @@ public class Server implements ConnectionInteraction {
 
         System.out.print("Enter port: ");
         String port = sc.nextLine();
-        System.out.print("Enter name: ");
+        System.out.print("Enter your name: ");
         String name = sc.nextLine();
 
         server.connectServers("", Integer.parseInt(port), name);
@@ -50,6 +50,8 @@ public class Server implements ConnectionInteraction {
             socket = serverSocket.accept();
             chat = new Chat(socket, name);
             chat.printText("Connection established with: " + socket.getInetAddress().getHostAddress() + "\n");
+            chat.printText("This is a end-to-end encrypted chat \n\n");
+
         } catch (IOException e) {
             System.out.println("Error connecting with client: " + e.getMessage() + "\n");
             System.exit(0);

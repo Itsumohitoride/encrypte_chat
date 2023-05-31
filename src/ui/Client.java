@@ -16,11 +16,11 @@ public class Client implements ConnectionInteraction {
         Client client = new Client();
         Scanner sc = new Scanner(System.in);
 
-        System.out.print("Enter ip: ");
+        System.out.print("Enter server IP: ");
         String ip = sc.nextLine();
         System.out.print("Enter port: ");
         String port = sc.nextLine();
-        System.out.print("Enter name: ");
+        System.out.print("Enter your name: ");
         String name = sc.nextLine();
 
         client.connectServers(ip, Integer.parseInt(port), name);
@@ -48,7 +48,9 @@ public class Client implements ConnectionInteraction {
         try {
             socket = new Socket(ip, port);
             chat = new Chat(socket, name);
-            chat.printText("Connecting with " + socket.getInetAddress().getHostAddress() + "\n");
+            chat.printText("Connecting with " + socket.getInetAddress().getHostName() + "\n");
+            chat.printText("This is a end-to-end encrypted chat \n\n");
+
         } catch (IOException e) {
             System.out.println("Error connecting with server: " + e.getMessage() + "\n");
             System.exit(0);

@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class Chat implements ChatInteraction {
     private DataInputStream input;
     private DataOutputStream output;
-    private String name;
+    private final String name;
     private final Socket socket;
 
     public Chat(Socket socket, String name){
@@ -23,14 +23,14 @@ public class Chat implements ChatInteraction {
     public void receiveData() {
         String message = "";
         try {
-            do {
+            while (!message.equalsIgnoreCase(TERMINATE_CONNECTION)){
                 message = (String) input.readUTF();
                 printText("\n[" + socket.getInetAddress().getHostAddress() + "]: " + message
                         + "\n[" + name + "]:" );
-            } while (!message.equalsIgnoreCase(TERMINATE_CONNECTION));
+            }
+            endConnection();
         } catch (IOException e) {
             printText("Error receiving message: " + e.getMessage() + "\n");
-            endConnection();
         }
     }
 
@@ -82,6 +82,9 @@ public class Chat implements ChatInteraction {
             input.close();
             output.close();
             socket.close();
+            printText("Chat closed....");
+            System.exit(0);
+
         } catch (IOException e) {
             printText("Error closing chat: " + e.getMessage() + "\n");
             System.exit(0);
