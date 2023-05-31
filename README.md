@@ -1,10 +1,10 @@
-**#Encrypte_chat**
+# **Encrypte_chat**
 
-##Contexto
+## Contexto
 
 El presente proyecto trata acerca de un chat cifrado, el cual realiza una conexión por medio de la red entre dos instancias. Además, después de realizar la conexión entre dichas instancias, se negocian claves por medio del algoritmo Diffie-Hellman, las cuales estarán en 256 bits y serán utilizadas para encriptar la información que se compartan las instancias por medio del algoritmo AES.
 
-##¿Cómo se hizo el programa?
+## ¿Cómo se hizo el programa?
 
 Para empezar, se tuvieron en cuenta diversos métodos que servirían para poder establecer una conexión entre dos instancias por medio de la red. Se pensó en usar un middleware llamado Ice que nos permite realizar una conexión tipo cliente-servidor y también se pensó en usar sockets, ambas formas se implementarían en el lenguaje de programación **Java**.
 
@@ -29,7 +29,7 @@ La clase **servidor** se encarga de inicializar la conexión por medio de un ser
 
 Por otro lado, la **clase** cliente se encarga de inicializar un socket y conectarlo hacia un servidor, el cual se determina por medio de una dirección IP y un puerto específico. Luego de inicializar el socket, se establece la conexión con el servidor y se abre el flujo o el chat para que las dos instacias intercambien claves y se pueda encriptar el chat por medio del algorimo AES.
 
-##Dificultades presentes
+## Dificultades presentes
 
-##Conclusiones
+## Conclusiones
 
