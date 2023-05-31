@@ -33,3 +33,8 @@ Por otro lado, la **clase** cliente se encarga de inicializar un socket y conect
 
 ## Conclusiones
 
+### Referencias:
+
+- [Algoritmo Diffie Hellman](https://protecciondatos-lopd.com/empresas/algoritmo-diffie-hellman/)
+- [Sockets en Java](https://parzibyte.me/blog/2018/02/09/sockets-java-chat-cliente-servidor/)
+
