@@ -152,7 +152,7 @@ public class Client implements ChatInteraction {
             do {
                 ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
                 String encryptedMessage = (String) inputStream.readObject();
-                message = encrypt.decrypt(diffieHellman.getSecretKey(), encryptedMessage.toString());
+                message = encrypt.decrypt(diffieHellman.getSecretKey(), encryptedMessage);
                 printText("\n[" + socket.getInetAddress().getHostAddress() + "]: " + message
                         + "\n[" + name + "]:");
             } while (!message.equalsIgnoreCase(TERMINATE_CONNECTION));
