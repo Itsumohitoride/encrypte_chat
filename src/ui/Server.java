@@ -7,6 +7,7 @@ import model.DiffieHellman;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Server implements ConnectionInteraction {
@@ -43,9 +44,9 @@ public class Server implements ConnectionInteraction {
                 try {
                     flow();
 
-                    diffieHellman.generatePublicKey();
-                    diffieHellman.generatePrivateKey();
+                    diffieHellman.generateKeys();
                     chat.sendKey(diffieHellman.getPublicKey());
+                    chat.receiveKey();
                     diffieHellman.receivedPublicKey(chat.getKey());
                     diffieHellman.generateSecretKey();
 

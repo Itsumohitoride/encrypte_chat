@@ -3,6 +3,7 @@ package model;
 import Interface.DiffieHellmanInteraction;
 
 import javax.crypto.KeyAgreement;
+import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -18,23 +19,14 @@ public class DiffieHellman implements DiffieHellmanInteraction {
     private byte[] secretKey;
 
     @Override
-    public void generatePublicKey() {
+    public void generateKeys() {
         try {
-            KeyPairGenerator generator = KeyPairGenerator.getInstance("DH");
-            generator.initialize(256);
-            publicKey = generator.generateKeyPair().getPublic();
+            final KeyPairGenerator generator = KeyPairGenerator.getInstance("DH");
+            generator.initialize(1024);
+            final KeyPair keyPair = generator.generateKeyPair();
 
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void generatePrivateKey() {
-        try {
-            KeyPairGenerator generator = KeyPairGenerator.getInstance("DH");
-            generator.initialize(256);
-            privateKey = generator.generateKeyPair().getPrivate();
+            privateKey = keyPair.getPrivate();
+            publicKey  = keyPair.getPublic();
 
         }catch (Exception e){
             e.printStackTrace();
@@ -44,13 +36,14 @@ public class DiffieHellman implements DiffieHellmanInteraction {
     @Override
     public void generateSecretKey() {
         try {
-            KeyAgreement keyAgreement = KeyAgreement.getInstance("DH");
+            final KeyAgreement keyAgreement = KeyAgreement.getInstance("DH");
             keyAgreement.init(privateKey);
-            keyAgreement.doPhase(privateKey, true);
+            keyAgreement.doPhase(receivedPublicKey, true);
 
-            secretKey = new byte[32];
-            System.arraycopy(keyAgreement.generateSecret(), 0, secretKey, 0,secretKey.length);
+            byte[] secret = new byte[32];
+            System.arraycopy(keyAgreement.generateSecret(), 0, secret, 0,secret.length);
 
+            secretKey = secret;
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -67,5 +60,9 @@ public class DiffieHellman implements DiffieHellmanInteraction {
 
     public PublicKey getReceivedPublicKey(){
         return publicKey;
+    }
+
+    public byte[] getSecretKey(){
+        return secretKey;
     }
 }

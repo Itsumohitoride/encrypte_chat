@@ -4,9 +4,7 @@ import java.security.PublicKey;
 
 public interface DiffieHellmanInteraction {
 
-    void generatePublicKey();
-
-    void generatePrivateKey();
+    void generateKeys();
 
     void generateSecretKey();
 
