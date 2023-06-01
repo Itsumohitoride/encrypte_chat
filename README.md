@@ -10,7 +10,7 @@ Para empezar, se tuvieron en cuenta diversos métodos que servirían para poder 
 
 Después de decidir que el proyecto se ejecutaría usando sockets de Java, se empezó a implementar el programa. Primero se definieron las interfaces a utilizar. En este caso planteamos tres, las cuales son:
 
-![image](https://github.com/Itsumohitoride/encrypte_chat/assets/72984873/9fa5a25c-a9d3-49f8-a98f-19b04503ef6e)
+![image](https://github.com/Itsumohitoride/encrypte_chat/assets/72984873/1ab4d275-959c-4a9d-8844-9c53e0411828)
 
 En cada interfaz definimos los métodos necesarios que serían implemenados para llevar a cabo la conexión entre instacias, la comunicación por medio del chat y el método de encriptado.
 
