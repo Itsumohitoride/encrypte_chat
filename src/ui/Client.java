@@ -1,24 +1,31 @@
 package ui;
 
-import Interface.ConnectionInteraction;
-import model.Chat;
+import Interface.ChatInteraction;
 import model.DiffieHellman;
+import model.Encrypt;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Scanner;
 
-public class Client implements ConnectionInteraction {
-
+public class Client implements ChatInteraction {
+    private DataInputStream input;
+    private DataOutputStream output;
     private Socket socket;
-
-    private static Chat chat;
-
     private static DiffieHellman diffieHellman;
+    private static Encrypt encrypt;
+    private static String name;
+    private PublicKey key;
 
     public static void main(String[] args) {
 
         diffieHellman = new DiffieHellman();
+        encrypt = new Encrypt();
 
         Client client = new Client();
         Scanner sc = new Scanner(System.in);
@@ -28,28 +35,21 @@ public class Client implements ConnectionInteraction {
         System.out.print("Enter port: ");
         String port = sc.nextLine();
         System.out.print("Enter your name: ");
-        String name = sc.nextLine();
+        name = sc.nextLine();
 
-        client.connectServers(ip, Integer.parseInt(port), name);
-        client.createConnection();
-        client.exchangeKeys();
+        client.createConnection(ip, Integer.parseInt(port));
         client.writeData();
     }
 
-    public void exchangeKeys(){
-        diffieHellman.generateKeys();
-        chat.sendKey(diffieHellman.getPublicKey());
-        chat.receiveKey();
-        diffieHellman.receivedPublicKey(chat.getKey());
-        diffieHellman.generateSecretKey();
-    }
-
     @Override
-    public void createConnection() {
+    public void createConnection(String ip, Integer port) {
         Thread thread = new Thread(() -> {
-            while (true){
+            while (true) {
                 try {
+                    connectServers(ip, port);
                     flow();
+                    exchangeKeys();
+                    diffieHellman.generateSecretKey();
                     receiveData();
                 } finally {
                     endConnection();
@@ -60,12 +60,11 @@ public class Client implements ConnectionInteraction {
     }
 
     @Override
-    public void connectServers(String ip, int port, String name) {
+    public void connectServers(String ip, int port) {
         try {
             socket = new Socket(ip, port);
-            chat = new Chat(socket, name);
-            chat.printText("Connecting with " + socket.getInetAddress().getHostName() + "\n");
-            chat.printText("This is a end-to-end encrypted chat \n\n");
+            printText("\nConnecting with " + socket.getInetAddress().getHostName() + "\n");
+            printText("This is a end-to-end encrypted chat \n\n");
 
         } catch (IOException e) {
             System.out.println("Error connecting with server: " + e.getMessage() + "\n");
@@ -73,23 +72,113 @@ public class Client implements ConnectionInteraction {
         }
     }
 
+    public void exchangeKeys() {
+        diffieHellman.generateKeys();
+        sendKey(diffieHellman.getPublicKey());
+        receiveKey();
+    }
+
+    @Override
+    public void sendKey(PublicKey key) {
+        try {
+            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+            outputStream.writeObject(diffieHellman.getPublicKey());
+            outputStream.flush();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void receiveKey() {
+        try {
+            ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
+            diffieHellman.receivedPublicKey((PublicKey) inputStream.readObject());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void flow() {
-        chat.flow();
+        try {
+            input = new DataInputStream(socket.getInputStream());
+            output = new DataOutputStream(socket.getOutputStream());
+            output.flush();
+        } catch (IOException e) {
+            printText("Error creating chat\n");
+        }
+    }
+
+    @Override
+    public void receiveData() {
+        String message = "";
+        try {
+            do {
+                ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
+                String encryptedMessage = (String) inputStream.readObject();
+                message = encrypt.decrypt(diffieHellman.getSecretKey(), encryptedMessage.toString());
+                printText("\n[" + socket.getInetAddress().getHostAddress() + "]: " + message
+                        + "\n[" + name + "]:");
+            } while (!message.equalsIgnoreCase(TERMINATE_CONNECTION));
+            endConnection();
+        } catch (Exception e) {
+            printText("Error receiving message: " + e.getMessage() + "\n");
+        }
+    }
+
+    @Override
+    public void writeData() {
+        String message = "";
+        while (true){
+            printText("[" + name + "]: ");
+            message = getMessage();
+            if (message.length() > 0) {
+                String encryptedMessage = null;
+                try {
+                    encryptedMessage = encrypt.encrypt(diffieHellman.getSecretKey(), message);
+                } catch (Exception e) {
+                    printText("Error receiving message: " + e.getMessage() + "\n");
+                }
+                send(encryptedMessage);
+            }
+        }
+    }
+
+    @Override
+    public void send(String message) {
+        try {
+            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+            outputStream.writeObject(message);
+            outputStream.flush();
+        } catch (IOException e) {
+            printText("Error sending message: " + e.getMessage() + "\n");
+        }
     }
 
     @Override
     public void endConnection() {
-        chat.endConnection();
+        try {
+            input.close();
+            output.close();
+            socket.close();
+            printText("Chat closed....");
+            System.exit(0);
+
+        } catch (IOException e) {
+            printText("Error closing chat: " + e.getMessage() + "\n");
+            System.exit(0);
+        }
     }
 
     @Override
-    public void receiveData(){
-        chat.receiveData();
+    public void printText(String message) {
+        System.out.print(message);
     }
 
     @Override
-    public void writeData(){
-        chat.writeData(diffieHellman.getSecretKey());
+    public String getMessage() {
+        Scanner scanner = new Scanner(System.in);
+        return scanner.nextLine();
     }
 }

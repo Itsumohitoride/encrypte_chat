@@ -27,7 +27,6 @@ public class DiffieHellman implements DiffieHellmanInteraction {
 
             privateKey = keyPair.getPrivate();
             publicKey  = keyPair.getPublic();
-
         }catch (Exception e){
             e.printStackTrace();
         }
