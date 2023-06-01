@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Chat implements ChatInteraction {
@@ -52,13 +53,14 @@ public class Chat implements ChatInteraction {
     }
 
     @Override
-    public void writeData() {
+    public void writeData(byte[] secretKey) {
         String message = "";
         while (true){
             printText("[" + name + "]: ");
             message = getMessage();
             if (message.length() > 0){
-                send(message);
+                String encryptedMessage = encrypt.encrypt(secretKey, message);
+                send(encryptedMessage);
             }
         }
     }

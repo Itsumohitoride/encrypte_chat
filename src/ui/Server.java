@@ -7,7 +7,6 @@ import model.DiffieHellman;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Server implements ConnectionInteraction {
@@ -16,7 +15,7 @@ public class Server implements ConnectionInteraction {
 
     private Socket socket;
 
-    private Chat chat;
+    private static Chat chat;
 
     private static DiffieHellman diffieHellman;
 
@@ -34,6 +33,7 @@ public class Server implements ConnectionInteraction {
 
         server.connectServers("", Integer.parseInt(port), name);
         server.createConnection();
+        server.exchangeKeys();
         server.writeData();
     }
 
@@ -43,13 +43,6 @@ public class Server implements ConnectionInteraction {
             while (true){
                 try {
                     flow();
-
-                    diffieHellman.generateKeys();
-                    chat.sendKey(diffieHellman.getPublicKey());
-                    chat.receiveKey();
-                    diffieHellman.receivedPublicKey(chat.getKey());
-                    diffieHellman.generateSecretKey();
-
                     receiveData();
                 } finally {
                     endConnection();
@@ -57,6 +50,14 @@ public class Server implements ConnectionInteraction {
             }
         });
         thread.start();
+    }
+
+    public void exchangeKeys(){
+        diffieHellman.generateKeys();
+        chat.sendKey(diffieHellman.getPublicKey());
+        chat.receiveKey();
+        diffieHellman.receivedPublicKey(chat.getKey());
+        diffieHellman.generateSecretKey();
     }
 
     @Override
@@ -91,6 +92,6 @@ public class Server implements ConnectionInteraction {
 
     @Override
     public void writeData(){
-        chat.writeData();
+        chat.writeData(diffieHellman.getSecretKey());
     }
 }
