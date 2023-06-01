@@ -11,8 +11,8 @@ import java.security.PublicKey;
 import java.util.Scanner;
 
 public class Server implements ChatInteraction {
-    private DataInputStream input;
-    private DataOutputStream output;
+    private ObjectInputStream inputStream;
+    private ObjectOutputStream outputStream;
     private ServerSocket serverSocket;
     private Socket socket;
     private static DiffieHellman diffieHellman;
@@ -78,7 +78,6 @@ public class Server implements ChatInteraction {
     @Override
     public void sendKey(PublicKey key) {
         try {
-            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
             outputStream.writeObject(diffieHellman.getPublicKey());
             outputStream.flush();
         }catch (Exception e){
@@ -89,7 +88,6 @@ public class Server implements ChatInteraction {
     @Override
     public void receiveKey() {
         try {
-            ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
             diffieHellman.receivedPublicKey((PublicKey) inputStream.readObject());
         } catch (Exception e) {
             e.printStackTrace();
@@ -99,9 +97,9 @@ public class Server implements ChatInteraction {
     @Override
     public void flow() {
         try {
-            input = new DataInputStream(socket.getInputStream());
-            output = new DataOutputStream(socket.getOutputStream());
-            output.flush();
+            inputStream = new ObjectInputStream(socket.getInputStream());
+            outputStream = new ObjectOutputStream(socket.getOutputStream());
+            outputStream.flush();
         } catch (IOException e) {
             printText("Error creating chat\n");
         }
@@ -112,7 +110,6 @@ public class Server implements ChatInteraction {
         String message = "";
         try {
             do {
-                ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
                 String  encryptedMessage = (String) inputStream.readObject();
                 message = encrypt.decrypt(diffieHellman.getSecretKey(), encryptedMessage);
                 printText("\n[" + socket.getInetAddress().getHostAddress() + "]: " + message
@@ -145,7 +142,6 @@ public class Server implements ChatInteraction {
     @Override
     public void send(String message) {
         try {
-            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
             outputStream.writeObject(message);
             outputStream.flush();
         } catch (IOException e) {
@@ -156,8 +152,8 @@ public class Server implements ChatInteraction {
     @Override
     public void endConnection() {
         try {
-            input.close();
-            output.close();
+            inputStream.close();
+            outputStream.close();
             socket.close();
             printText("Chat closed....");
             System.exit(0);
