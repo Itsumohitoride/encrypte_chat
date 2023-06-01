@@ -6,11 +6,7 @@ import model.Encrypt;
 
 import java.io.*;
 import java.net.Socket;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.Scanner;
 
 public class Client implements ChatInteraction {
