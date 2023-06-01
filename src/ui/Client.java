@@ -2,16 +2,23 @@ package ui;
 
 import Interface.ConnectionInteraction;
 import model.Chat;
+import model.DiffieHellman;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
 
 public class Client implements ConnectionInteraction {
+
     private Socket socket;
+
     private Chat chat;
 
+    private static DiffieHellman diffieHellman;
+
     public static void main(String[] args) {
+
+        diffieHellman = new DiffieHellman();
 
         Client client = new Client();
         Scanner sc = new Scanner(System.in);
@@ -34,6 +41,14 @@ public class Client implements ConnectionInteraction {
             while (true){
                 try {
                     flow();
+
+                    diffieHellman.generatePublicKey();
+                    diffieHellman.generatePrivateKey();
+                    chat.sendKey(diffieHellman.getPublicKey());
+                    chat.receiveKey();
+                    diffieHellman.receivedPublicKey(chat.getKey());
+                    diffieHellman.generateSecretKey();
+
                     receiveData();
                 } finally {
                     endConnection();

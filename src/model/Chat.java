@@ -6,6 +6,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Scanner;
 
 public class Chat implements ChatInteraction {
@@ -13,10 +16,13 @@ public class Chat implements ChatInteraction {
     private DataOutputStream output;
     private final String name;
     private final Socket socket;
+    private PublicKey key;
+    private final Encrypt encrypt;
 
     public Chat(Socket socket, String name){
         this.socket = socket;
         this.name = name;
+        encrypt = new Encrypt();
         flow();
     }
     @Override
@@ -35,6 +41,17 @@ public class Chat implements ChatInteraction {
     }
 
     @Override
+    public void receiveKey() {
+        try {
+            String publicKey = (String) input.readUTF();
+            key = encrypt.stringToPublicKey(publicKey);
+
+        } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+            printText("Error receiving key \n");
+        }
+    }
+
+    @Override
     public void writeData() {
         String message = "";
         while (true){
@@ -43,6 +60,17 @@ public class Chat implements ChatInteraction {
             if (message.length() > 0){
                 send(message);
             }
+        }
+    }
+
+    @Override
+    public void sendKey(PublicKey key) {
+        try {
+            String publicKey = encrypt.publicKeyToString(key);
+            output.writeUTF(publicKey);
+            output.flush();
+        } catch (IOException e) {
+            printText("Error sending key \n");
         }
     }
 
@@ -89,5 +117,9 @@ public class Chat implements ChatInteraction {
             printText("Error closing chat: " + e.getMessage() + "\n");
             System.exit(0);
         }
+    }
+
+    public PublicKey getKey(){
+        return key;
     }
 }
